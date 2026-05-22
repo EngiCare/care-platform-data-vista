@@ -1,0 +1,633 @@
+{
+  "service": "CarePlatform.Data.CPRS.Python",
+  "description": "REST API gateway to VA VistA clinical data (CPRS). Provides patient records, orders, notes, labs, vitals, problems, allergies, consults, reminders, and reports via the XWB broker protocol.",
+  "base_url": "http://localhost:5200",
+  "auth": {
+    "type": "bearer_jwt",
+    "flow": [
+      {
+        "step": 1,
+        "description": "Get available VistA sites",
+        "method": "GET",
+        "path": "/api/connection/sites",
+        "auth_required": false,
+        "returns": "array of {site_id, name, visn_name}"
+      },
+      {
+        "step": 2,
+        "description": "Authenticate and get JWT",
+        "method": "GET",
+        "path": "/api/connectbysite",
+        "auth_required": false,
+        "params": {
+          "SiteId": {"type": "string", "required": true},
+          "AccessCode": {"type": "string", "required": true},
+          "VerifyCode": {"type": "string", "required": true}
+        },
+        "returns": "JWT token string (plain text)"
+      },
+      {
+        "step": 3,
+        "description": "Include JWT on all subsequent requests",
+        "header": "Authorization: Bearer <token>"
+      }
+    ],
+    "token_expiry_minutes": 20,
+    "keepalive_endpoint": "GET /api/session/pulse"
+  },
+  "response_conventions": {
+    "json_naming": "snake_case",
+    "structured_returns": "Pydantic models serialized as JSON objects/arrays",
+    "raw_returns": "VistA wire strings passed as string or array of strings, often caret-delimited"
+  },
+  "key_parameters": {
+    "dfn": "Patient internal ID (required for most patient-context endpoints)",
+    "ien": "Record internal entry number (note, order, consult, etc.)",
+    "orderId": "Order internal file number (e.g., '456;1')",
+    "esCode": "Electronic signature code for signing",
+    "early_late": "Date range in FileMan format: YYYMMDD where YYY = year - 1700",
+    "startFrom_direction": "Paging: start text + direction (1=forward, -1=backward)"
+  },
+  "tools": [
+    {
+      "name": "get_sites",
+      "description": "List available VistA sites for connection",
+      "method": "GET",
+      "path": "/api/connection/sites",
+      "params": {},
+      "returns": "array",
+      "auth_required": false
+    },
+    {
+      "name": "connect_by_site",
+      "description": "Authenticate to a VistA site and receive a JWT token",
+      "method": "GET",
+      "path": "/api/connectbysite",
+      "params": {
+        "SiteId": {"type": "string", "required": true, "description": "Site ID from get_sites"},
+        "AccessCode": {"type": "string", "required": true, "description": "User access code"},
+        "VerifyCode": {"type": "string", "required": true, "description": "User verify code"},
+        "SSOToken": {"type": "string", "required": false, "description": "SSO token (alternative to access/verify)"}
+      },
+      "returns": "string (JWT token)"
+    },
+    {
+      "name": "connect_direct",
+      "description": "Connect to VistA with explicit host/port",
+      "method": "GET",
+      "path": "/api/connect",
+      "params": {
+        "HostName": {"type": "string", "required": true},
+        "Port": {"type": "string", "required": true},
+        "SiteId": {"type": "string", "required": true},
+        "AccessCode": {"type": "string", "required": true},
+        "VerifyCode": {"type": "string", "required": true}
+      },
+      "returns": "string (JWT token)"
+    },
+    {
+      "name": "session_status",
+      "description": "Get seconds remaining before session timeout",
+      "method": "GET",
+      "path": "/api/session/timeremaining",
+      "params": {},
+      "returns": "integer"
+    },
+    {
+      "name": "session_heartbeat",
+      "description": "Keep session alive",
+      "method": "GET",
+      "path": "/api/session/pulse",
+      "params": {},
+      "returns": "boolean"
+    },
+    {
+      "name": "disconnect",
+      "description": "End VistA session and clean up",
+      "method": "POST",
+      "path": "/api/session/disconnect",
+      "params": {},
+      "returns": "object {status}"
+    },
+    {
+      "name": "get_user_info",
+      "description": "Get current authenticated user details (name, role, permissions, settings)",
+      "method": "GET",
+      "path": "/api/user/info",
+      "params": {},
+      "returns": "UserInfo object",
+      "schema": {
+        "duz": "integer — user internal ID",
+        "name": "string — full name",
+        "user_class": "string — PHYSICIAN, NURSE, etc.",
+        "can_sign": "boolean — can electronically sign documents",
+        "is_provider": "boolean",
+        "order_role": "string",
+        "station_number": "string — facility station number",
+        "is_production": "boolean — production vs test system"
+      }
+    },
+    {
+      "name": "search_patient_last5",
+      "description": "Search for patients by last initial + last 4 digits of SSN",
+      "method": "GET",
+      "path": "/api/patient/search/last5",
+      "params": {
+        "last5": {"type": "string", "required": true, "description": "Last name initial + last 4 SSN (e.g., 'C1234')"}
+      },
+      "returns": "array of PatientSearchResult"
+    },
+    {
+      "name": "search_patient_ssn",
+      "description": "Search for patients by full SSN",
+      "method": "GET",
+      "path": "/api/patient/search/fullssn",
+      "params": {
+        "fullSsn": {"type": "string", "required": true, "description": "Full SSN (dashes stripped automatically)"}
+      },
+      "returns": "array of PatientSearchResult"
+    },
+    {
+      "name": "select_patient",
+      "description": "Select a patient and retrieve demographics (required before accessing patient data)",
+      "method": "GET",
+      "path": "/api/patient/select",
+      "params": {
+        "dfn": {"type": "string", "required": true, "description": "Patient DFN"}
+      },
+      "returns": "PatientDemographics object",
+      "schema": {
+        "dfn": "string",
+        "name": "string",
+        "sex": "string (M/F)",
+        "date_of_birth": "datetime ISO string",
+        "ssn": "string",
+        "location_ien": "string",
+        "location_name": "string",
+        "room_bed": "string",
+        "cwad": "string — C/W/A/D flags",
+        "is_sensitive": "boolean",
+        "icn": "string — Integration Control Number",
+        "age": "integer"
+      }
+    },
+    {
+      "name": "patients_by_ward",
+      "description": "List patients on a specific ward",
+      "method": "GET",
+      "path": "/api/patient/byward",
+      "params": {
+        "wardIen": {"type": "integer", "required": true}
+      },
+      "returns": "array of PatientSearchResult"
+    },
+    {
+      "name": "sensitive_record_access",
+      "description": "Check if patient record is sensitive and log access",
+      "method": "GET",
+      "path": "/api/patient/sensitiverecordaccess",
+      "params": {
+        "dfn": {"type": "string", "required": true}
+      },
+      "returns": "SensitiveRecordResult object"
+    },
+    {
+      "name": "list_notes",
+      "description": "List clinical notes (TIU documents) for a patient by context and date range",
+      "method": "GET",
+      "path": "/api/note/list",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "context": {"type": "integer", "required": true, "description": "View context (1=All signed, etc.)"},
+        "early": {"type": "string", "required": false, "description": "Start date (FM format YYYMMDD)"},
+        "late": {"type": "string", "required": false, "description": "End date (FM format)"},
+        "person": {"type": "integer", "required": false, "default": 0},
+        "occLim": {"type": "integer", "required": false, "default": 0},
+        "sortAscending": {"type": "boolean", "required": false, "default": false},
+        "showAddenda": {"type": "boolean", "required": false, "default": false}
+      },
+      "returns": "array of TiuDocument",
+      "schema": {
+        "ien": "string — note IEN",
+        "title": "string — note title",
+        "reference_date": "datetime",
+        "author_name": "string",
+        "author_duz": "integer",
+        "location_name": "string",
+        "status": "string — COMPLETED, UNSIGNED, etc.",
+        "has_children": "boolean — has addenda",
+        "image_count": "integer"
+      }
+    },
+    {
+      "name": "get_note_text",
+      "description": "Get the body text of a clinical note",
+      "method": "GET",
+      "path": "/api/note/text",
+      "params": {
+        "ien": {"type": "integer", "required": true, "description": "Note IEN"}
+      },
+      "returns": "array of strings (text lines)"
+    },
+    {
+      "name": "get_note_detail",
+      "description": "Get formatted display of a note with header and signature info",
+      "method": "GET",
+      "path": "/api/note/detaileddisplay",
+      "params": {
+        "ien": {"type": "integer", "required": true}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "create_note",
+      "description": "Create a new clinical note",
+      "method": "POST",
+      "path": "/api/note/create",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "title": {"type": "integer", "required": true, "description": "Note title IEN"},
+        "visitStr": {"type": "string", "required": false}
+      },
+      "returns": "CreateNoteResult object"
+    },
+    {
+      "name": "sign_note",
+      "description": "Electronically sign a clinical note",
+      "method": "POST",
+      "path": "/api/note/sign",
+      "params": {
+        "ien": {"type": "integer", "required": true},
+        "esCode": {"type": "string", "required": true, "description": "E-signature code"}
+      },
+      "returns": "string"
+    },
+    {
+      "name": "list_orders",
+      "description": "List orders for a patient by display group and status filter",
+      "method": "GET",
+      "path": "/api/order/list",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "filterTS": {"type": "string", "required": true, "description": "Status filter (2=active, etc.)"},
+        "dGroup": {"type": "string", "required": true, "description": "Display group (ALL, or specific)"},
+        "timeFrom": {"type": "string", "required": false},
+        "timeThru": {"type": "string", "required": false}
+      },
+      "returns": "array of Order",
+      "schema": {
+        "order_id": "string",
+        "display_group": "string — Pharmacy, Lab, Radiology, etc.",
+        "text": "string — order description",
+        "status": "string — status code",
+        "status_name": "string — Active, Pending, etc.",
+        "start_date": "string (FM date)",
+        "stop_date": "string (FM date)",
+        "provider": "string — ordering provider name",
+        "is_flagged": "boolean"
+      }
+    },
+    {
+      "name": "get_order_detail",
+      "description": "Get detailed information about a specific order",
+      "method": "GET",
+      "path": "/api/order/detail",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "ien": {"type": "string", "required": true, "description": "Order IEN"}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "list_active_meds",
+      "description": "List active medications for a patient",
+      "method": "GET",
+      "path": "/api/medication/active",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "duz": {"type": "integer", "required": true, "description": "Provider DUZ"},
+        "view": {"type": "integer", "required": false, "default": 0}
+      },
+      "returns": "array of strings (medication lines)"
+    },
+    {
+      "name": "get_med_detail",
+      "description": "Get detailed medication information",
+      "method": "GET",
+      "path": "/api/medication/detail",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "id": {"type": "string", "required": true, "description": "Medication/order ID"}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "list_problems",
+      "description": "List patient problems (active or inactive)",
+      "method": "GET",
+      "path": "/api/problem/list",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "status": {"type": "string", "required": true, "description": "A=active, I=inactive, B=both"},
+        "fmDate": {"type": "string", "required": false}
+      },
+      "returns": "array of Problem",
+      "schema": {
+        "ifn": "string — problem IFN",
+        "description": "string — diagnosis description",
+        "icd_code": "string — ICD code",
+        "snomed_code": "string",
+        "status": "string — A/I",
+        "onset_date": "string (FM date)",
+        "responsible_provider": "string",
+        "service_connected": "boolean"
+      }
+    },
+    {
+      "name": "search_lexicon",
+      "description": "Search clinical terms (ICD/SNOMED) for problem entry",
+      "method": "GET",
+      "path": "/api/problem/lexicon",
+      "params": {
+        "searchFor": {"type": "string", "required": true},
+        "view": {"type": "string", "required": true},
+        "fmDate": {"type": "string", "required": false},
+        "extend": {"type": "boolean", "required": false, "default": true}
+      },
+      "returns": "array of ProblemLexiconResult"
+    },
+    {
+      "name": "list_consults",
+      "description": "List consults/procedures for a patient",
+      "method": "GET",
+      "path": "/api/consult/list",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "early": {"type": "string", "required": true, "description": "Start date (FM)"},
+        "late": {"type": "string", "required": true, "description": "End date (FM)"},
+        "service": {"type": "string", "required": true},
+        "status": {"type": "string", "required": true}
+      },
+      "returns": "array of Consult",
+      "schema": {
+        "ien": "string",
+        "status": "string — PENDING, ACTIVE, COMPLETE, etc.",
+        "service": "string — consulting service",
+        "consult_type": "string",
+        "request_date": "string (FM date)",
+        "urgency": "string",
+        "requesting_provider": "string",
+        "status_abbrev": "string — p, a, c, etc."
+      }
+    },
+    {
+      "name": "get_consult_detail",
+      "description": "Get detailed consult/procedure display",
+      "method": "GET",
+      "path": "/api/consult/detail",
+      "params": {
+        "ien": {"type": "integer", "required": true}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_allergies",
+      "description": "Get patient allergy list",
+      "method": "GET",
+      "path": "/api/coversheet/allergies",
+      "params": {
+        "dfn": {"type": "string", "required": true}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_allergy_detail",
+      "description": "Get detailed allergy information",
+      "method": "GET",
+      "path": "/api/coversheet/allergydetail",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "ien": {"type": "integer", "required": true}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_latest_vitals",
+      "description": "Get most recent vital signs for a patient",
+      "method": "GET",
+      "path": "/api/vital/latest",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "encDate": {"type": "string", "required": false}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_vitals_grid",
+      "description": "Get vitals grid data for a date range",
+      "method": "GET",
+      "path": "/api/vital/grid",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "date1": {"type": "string", "required": true},
+        "date2": {"type": "string", "required": true},
+        "tests": {"type": "string", "required": false}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_recent_labs",
+      "description": "Get recent lab results for a patient",
+      "method": "GET",
+      "path": "/api/lab/recent",
+      "params": {
+        "dfn": {"type": "string", "required": true}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_lab_cumulative",
+      "description": "Get cumulative lab report",
+      "method": "GET",
+      "path": "/api/lab/cumulative",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "daysBack": {"type": "integer", "required": false, "default": 365}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_lab_graph_data",
+      "description": "Get lab data formatted for graphing/trending",
+      "method": "GET",
+      "path": "/api/lab/graphdata",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "test": {"type": "string", "required": false},
+        "daysBack": {"type": "integer", "required": false, "default": 365}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_report_list",
+      "description": "Get available report definitions",
+      "method": "GET",
+      "path": "/api/report/lists",
+      "params": {},
+      "returns": "array of ReportDefinition",
+      "schema": {
+        "id": "string",
+        "name": "string — report name",
+        "rpc_name": "string — VistA RPC to execute",
+        "supports_date_range": "boolean",
+        "supports_remote_data": "boolean",
+        "children": "array of ReportDefinition (nested)"
+      }
+    },
+    {
+      "name": "run_report",
+      "description": "Execute a clinical report",
+      "method": "GET",
+      "path": "/api/report/run",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "reportId": {"type": "string", "required": true},
+        "alpha": {"type": "string", "required": false, "description": "Start date"},
+        "omega": {"type": "string", "required": false, "description": "End date"},
+        "daysBack": {"type": "string", "required": false}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_applicable_reminders",
+      "description": "Get clinical reminders applicable to a patient",
+      "method": "GET",
+      "path": "/api/reminder/applicable",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "location": {"type": "string", "required": false, "default": "0"}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "evaluate_reminder",
+      "description": "Evaluate a specific clinical reminder for a patient",
+      "method": "GET",
+      "path": "/api/reminder/evaluate",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "reminderIen": {"type": "string", "required": true}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_alerts",
+      "description": "Get current user alerts/notifications",
+      "method": "GET",
+      "path": "/api/alert/list",
+      "params": {},
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_notification_count",
+      "description": "Get count of pending notifications",
+      "method": "GET",
+      "path": "/api/notification/count",
+      "params": {},
+      "returns": "string (count)"
+    },
+    {
+      "name": "get_cwad_postings",
+      "description": "Get Crisis/Warnings/Allergies/Directives flags for a patient",
+      "method": "GET",
+      "path": "/api/coversheet/postings",
+      "params": {
+        "dfn": {"type": "string", "required": true}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_demographics",
+      "description": "Get patient demographics from coversheet",
+      "method": "GET",
+      "path": "/api/coversheet/demographics",
+      "params": {
+        "dfn": {"type": "string", "required": true}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_immunizations",
+      "description": "Get patient immunization history",
+      "method": "GET",
+      "path": "/api/coversheet/immunizations",
+      "params": {
+        "dfn": {"type": "string", "required": true}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "list_dc_summaries",
+      "description": "List discharge summaries for a patient",
+      "method": "GET",
+      "path": "/api/dcsumm/list",
+      "params": {
+        "dfn": {"type": "string", "required": true},
+        "context": {"type": "integer", "required": true},
+        "early": {"type": "string", "required": false},
+        "late": {"type": "string", "required": false}
+      },
+      "returns": "array of TiuDocument"
+    },
+    {
+      "name": "get_remote_facilities",
+      "description": "Get remote VA facilities with data for a patient",
+      "method": "GET",
+      "path": "/api/facility/remotefacilities",
+      "params": {
+        "dfn": {"type": "string", "required": true}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_patient_flags",
+      "description": "Get patient record flags (behavioral, safety)",
+      "method": "GET",
+      "path": "/api/patient/flags",
+      "params": {
+        "dfn": {"type": "string", "required": true}
+      },
+      "returns": "array of strings"
+    },
+    {
+      "name": "get_primary_care",
+      "description": "Get patient's primary care team info",
+      "method": "GET",
+      "path": "/api/patient/primarycare",
+      "params": {
+        "dfn": {"type": "string", "required": true}
+      },
+      "returns": "PatientPrimaryCare object"
+    },
+    {
+      "name": "get_pregnancy_status",
+      "description": "Check patient pregnancy status (women's health)",
+      "method": "GET",
+      "path": "/api/womenshealth/pregnancystatus",
+      "params": {
+        "dfn": {"type": "string", "required": true}
+      },
+      "returns": "string"
+    },
+    {
+      "name": "get_surgery_cases",
+      "description": "List surgery cases for a patient",
+      "method": "GET",
+      "path": "/api/surgery/list",
+      "params": {
+        "dfn": {"type": "string", "required": true}
+      },
+      "returns": "array of strings"
+    }
+  ]
+}
