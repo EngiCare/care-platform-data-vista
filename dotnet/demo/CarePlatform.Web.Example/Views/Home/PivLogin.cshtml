@@ -1,0 +1,58 @@
+@* Copyright (c) 2026 Engineered Care, Inc. Licensed under the MIT License. *@
+@{
+    ViewData["Title"] = "PIV Sign In";
+    ViewData["HideChrome"] = true;
+    var sites = ViewBag.Sites as List<CarePlatform.Web.Example.Controllers.HomeController.SiteInfo> ?? [];
+}
+
+<div class="cp-login-container">
+    <div class="cp-login-card">
+        <div class="cp-login-header">
+            <i class="bi bi-shield-lock" style="font-size:2rem;"></i>
+            <h4>PIV / Smart Card</h4>
+            <p class="login-subtitle">Simulated SSO Authentication</p>
+        </div>
+        <div class="cp-login-body">
+            <div class="alert alert-info py-2 mb-3">
+                <i class="bi bi-info-circle"></i>
+                <strong>Demo Mode:</strong> In production, this would redirect to the VA SSOi service
+                for PIV/smart card authentication. For the demo, clicking below will authenticate
+                using the built-in test credentials.
+            </div>
+
+            <form asp-action="PivLogin" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Site</label>
+                    <select name="siteId" class="form-select">
+                        @foreach (var site in sites)
+                        {
+                            <option value="@site.SiteId">@site.Name (@site.SiteId)</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg" id="btnPiv">
+                        <i class="bi bi-shield-lock"></i> Authenticate with PIV
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-center mt-3">
+                <a asp-action="Index" class="text-muted small">
+                    <i class="bi bi-arrow-left"></i> Back to login options
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.querySelector('form').addEventListener('submit', function () {
+        var btn = document.getElementById('btnPiv');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Authenticating...';
+    });
+</script>
+}
