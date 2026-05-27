@@ -1,0 +1,97 @@
+@model CarePlatform.Security.VA.STSv2.Models.TestIssueViewModel
+
+@{
+    ViewBag.Title = "Test - STS Token Issue";
+}
+
+<h2>STS Token Issue Results</h2>
+
+<div>
+    <h4>Entra ID &rarr; STS Token Exchange</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>User</dt>
+        <dd>@Model.UserName</dd>
+
+        <dt>Bootstrap JWT (id_token)</dt>
+        <dd style="word-break: break-all; max-height: 150px; overflow-y: auto;">@Model.BootstrapJwt</dd>
+
+        <hr />
+        <h4>OBO Token Exchange</h4>
+
+        <dt>OBO Token Endpoint</dt>
+        <dd>@Model.OboTokenEndpoint</dd>
+
+        <dt>Requested Scope (aud)</dt>
+        <dd><code>@Model.OboRequestedScope</code></dd>
+
+        <dt>OBO Result</dt>
+        <dd>
+            @if (Model.OboSuccess)
+            {
+                <span class="badge bg-success">Success</span>
+                <span class="text-muted">(expires_in: @Model.OboExpiresIn s)</span>
+            }
+            else
+            {
+                <span class="badge bg-danger">Failed</span>
+            }
+        </dd>
+
+        @if (!Model.OboSuccess && !string.IsNullOrEmpty(Model.OboError))
+        {
+            <dt>OBO Error</dt>
+            <dd>
+                <pre style="white-space: pre-wrap; max-height: 200px; overflow-y: auto; background: #fff0f0; padding: 10px; border: 1px solid #c00;">@Model.OboError</pre>
+            </dd>
+        }
+
+        @if (Model.OboSuccess)
+        {
+            <dt>OBO Access Token (STS aud)</dt>
+            <dd>
+                <div style="word-break: break-all; max-height: 150px; overflow-y: auto; background: #f0f8ff; padding: 10px; border: 1px solid #069;">@Model.OboAccessToken</div>
+            </dd>
+        }
+
+        <hr />
+
+        <dt>Request Headers</dt>
+        <dd><pre style="white-space: pre-wrap;">@Model.RequestHeaderString</pre></dd>
+
+        <dt>Response Headers</dt>
+        <dd><pre style="white-space: pre-wrap;">@Model.ResponseHeaderString</pre></dd>
+
+        <hr />
+
+        <dt>Certificate Name</dt>
+        <dd>@Model.CertificateName</dd>
+
+        <dt>STS Endpoint</dt>
+        <dd>@Model.Endpoint</dd>
+
+        <hr />
+
+        @if (Model.OboSuccess)
+        {
+            <dt>SOAP Request</dt>
+            <dd>
+                <pre style="white-space: pre-wrap; max-height: 300px; overflow-y: auto; background: #f5f5f5; padding: 10px;">@Model.RequestString</pre>
+            </dd>
+
+            <dt>SOAP Response</dt>
+            <dd>
+                <pre style="white-space: pre-wrap; max-height: 300px; overflow-y: auto; background: #f5f5f5; padding: 10px;">@Model.ResponseString</pre>
+            </dd>
+
+            <hr />
+
+            <dt>SAML Token</dt>
+            <dd>
+                <pre style="white-space: pre-wrap; max-height: 300px; overflow-y: auto; background: #efffef; padding: 10px; border: 1px solid #090;">@Model.Token</pre>
+            </dd>
+        }
+    </dl>
+
+    <p><a class="btn btn-secondary" asp-controller="Test" asp-action="Index">Back to Diagnostics</a></p>
+</div>

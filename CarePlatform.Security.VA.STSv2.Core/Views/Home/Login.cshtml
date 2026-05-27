@@ -1,0 +1,17 @@
+@model LoginViewModel
+
+@{
+    ViewBag.Title = "Working";
+}
+<h2>@ViewBag.Title.</h2>
+
+<form method="POST" name="hiddenform" action="@Model.PostBackUrl">
+    <input type="hidden" name="wa" value="wsignin1.0" />
+    <input type="hidden" name="uri" value="@Model.OriginalUri" />
+    <input type="hidden" name="SSOToken" value="@Model.EncodedToken" />
+    <noscript>
+        <p>Script is disabled. Click Submit to continue.</p>
+        <input type="submit" value="Submit" />
+    </noscript>
+</form>
+<script>window.setTimeout(function () { document.forms[0].submit(); }, 0);</script>

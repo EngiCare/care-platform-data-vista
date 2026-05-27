@@ -1,0 +1,52 @@
+@model CarePlatform.Security.VA.STSv2.Models.TestHeaderViewModel
+
+@{
+    ViewBag.Title = "Test - Headers & Claims";
+}
+
+<h2>STSv2 Diagnostics</h2>
+
+<div class="row">
+    <div class="col-sm-12">
+        <h3>Authenticated User</h3>
+        <p><strong>User:</strong> @Model.UserName</p>
+
+        <h3>Bootstrap JWT (id_token)</h3>
+        <div style="word-break: break-all; background: #f5f5f5; padding: 10px; border: 1px solid #ddd; max-height: 200px; overflow-y: auto;">
+            @Model.BootstrapJwt
+        </div>
+
+        <hr />
+
+        <h3>Entra ID Claims</h3>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr><th>Claim Type</th><th>Claim Value</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var claim in Model.Claims)
+                {
+                    <tr><td>@claim.Key</td><td style="word-break: break-all;">@claim.Value</td></tr>
+                }
+            </tbody>
+        </table>
+
+        <hr />
+
+        <h3>HTTP Request Headers</h3>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr><th>Header Key</th><th>Header Value</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var header in Model.Headers)
+                {
+                    <tr><td>@header.Key</td><td style="word-break: break-all;">@header.Value</td></tr>
+                }
+            </tbody>
+        </table>
+
+        <hr />
+        <p><a class="btn btn-primary" asp-controller="Test" asp-action="Issue">Test STS Token Issue</a></p>
+    </div>
+</div>

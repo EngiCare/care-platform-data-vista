@@ -1,0 +1,21 @@
+@{
+    ViewBag.Title = "Home";
+}
+<h2>STSv2 - Entra ID &rarr; STS Token Service</h2>
+<p>
+    This service authenticates users via Entra ID (Azure AD) and exchanges the
+    bootstrap JWT for a SAML assertion from the VA SSOi STS.
+</p>
+@if (User.Identity.IsAuthenticated)
+{
+    <p>Signed in as: <strong>@User.Identity.Name</strong></p>
+    <p>
+        <a class="btn btn-info" asp-controller="Test" asp-action="Index">Diagnostics (Headers &amp; Claims)</a>
+        <a class="btn btn-primary" asp-controller="Test" asp-action="Issue">Test STS Token Issue</a>
+    </p>
+    <p><a asp-controller="Home" asp-action="Logout">Sign Out</a></p>
+}
+else
+{
+    <p><a class="btn btn-primary" asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignIn">Sign In</a></p>
+}
