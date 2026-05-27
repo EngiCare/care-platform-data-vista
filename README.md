@@ -13,11 +13,14 @@ This repository contains two implementations of the same service — a C# ASP.NE
 ```
 care-platform-data-vista/
 ├── dotnet/
+│   ├── demo/
+│   │   ├── CarePlatform.MockVistA/          # Simulated VistA RPC server (TCP 9200)
+│   │   └── CarePlatform.Web.Example/        # Minimal MVC frontend (login + dashboard)
 │   ├── CarePlatform.Data.CPRS/              # C# ASP.NET Core data API (.NET 10)
 │   ├── CarePlatform.Models/                 # Shared C# models library
 │   ├── CarePlatform.Security.VA.STSv2.Core/ # VA SSOi/STSv2 token exchange service
-│   ├── CarePlatform.Web.Example/            # Minimal MVC frontend (login + dashboard)
-│   └── care-platform-data-vista.slnx        # Solution file (all 4 projects)
+│   ├── Start-Demo.ps1                       # One-click demo launcher
+│   └── care-platform-data-vista.slnx        # Solution file
 ├── python/
 │   ├── app/                                 # Python FastAPI data API
 │   ├── examples/                            # Example scripts (login, notes, summary)
@@ -27,6 +30,57 @@ care-platform-data-vista/
 ├── CODEOWNERS
 └── README.md
 ```
+
+---
+
+## 🚀 Run the Demo
+
+The fastest way to see things working — **no external VistA server needed**.
+
+### Prerequisites
+
+- **.NET 10 SDK** — [download](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+
+### Option 1 — One-click launch (Windows PowerShell)
+
+```powershell
+cd dotnet
+.\Start-Demo.ps1
+```
+
+This builds both projects, starts MockVistA on port 9200 and the web frontend on port 5253, waits for both to be healthy, and opens your browser. Press `Ctrl+C` to stop everything.
+
+> **Flags:** `-SkipBuild` to skip the build step, `-NoBrowser` to suppress the browser launch.
+
+### Option 2 — Manual launch (any OS)
+
+Open **two terminals**:
+
+```bash
+# Terminal 1 — Mock VistA RPC server
+cd dotnet/demo/CarePlatform.MockVistA
+dotnet run
+# → "Mock VistA RPC Server listening on tcp://localhost:9200"
+```
+
+```bash
+# Terminal 2 — Web frontend
+cd dotnet/demo/CarePlatform.Web.Example
+dotnet run
+# → "Now listening on: http://localhost:5253"
+```
+
+Open **http://localhost:5253** in your browser.
+
+### Login credentials
+
+| Field | Value |
+|-------|-------|
+| Site | Mock VistA (localhost) |
+| Access Code | `cprs` |
+| Verify Code | `cprs1234` |
+
+You'll see a login choice page — pick **PIV / Smart Card** (simulated) or **Access Code / Verify Code**, then you'll land on the dashboard showing your VistA session info.
 
 ---
 
