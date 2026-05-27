@@ -2,4 +2,5 @@
   <Project Path="CarePlatform.Data.CPRS/CarePlatform.Data.CPRS.csproj" />
   <Project Path="CarePlatform.Models/CarePlatform.Models.csproj" />
   <Project Path="CarePlatform.Security.VA.STSv2.Core/CarePlatform.Security.VA.STSv2.Core.csproj" />
+  <Project Path="CarePlatform.Web.Example/CarePlatform.Web.Example.csproj" />
 </Solution>

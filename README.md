@@ -1,21 +1,107 @@
 # Care Platform Data VistA
 
-A Python FastAPI service that provides REST API access to VA VistA clinical data via the XWB broker protocol. Covers the full breadth of CPRS (Computerized Patient Record System) functionality: patient records, clinical notes, orders, medications, labs, vitals, problems, allergies, consults, reminders, reports, and more.
+REST API services that provide access to VA VistA clinical data via the XWB broker protocol. Covers the full breadth of CPRS (Computerized Patient Record System) functionality: patient records, clinical notes, orders, medications, labs, vitals, problems, allergies, consults, reminders, reports, and more.
+
+This repository contains two implementations of the same service — a C# ASP.NET Core original and a Python FastAPI port — plus the shared models library, a VA STS token exchange service, and a minimal .NET web frontend example showing how to integrate.
 
 **License:** MIT — Copyright (c) 2026 Engineered Care, Inc.
 
 ---
 
-## Prerequisites
+## Repository Structure
+
+```
+care-platform-data-vista/
+├── dotnet/
+│   ├── CarePlatform.Data.CPRS/              # C# ASP.NET Core data API (.NET 10)
+│   ├── CarePlatform.Models/                 # Shared C# models library
+│   ├── CarePlatform.Security.VA.STSv2.Core/ # VA SSOi/STSv2 token exchange service
+│   ├── CarePlatform.Web.Example/            # Minimal MVC frontend (login + dashboard)
+│   └── care-platform-data-vista.slnx        # Solution file (all 4 projects)
+├── python/
+│   ├── app/                                 # Python FastAPI data API
+│   ├── examples/                            # Example scripts (login, notes, summary)
+│   ├── tests/
+│   └── pyproject.toml
+├── LICENSE
+├── CODEOWNERS
+└── README.md
+```
+
+---
+
+## Quick Start — .NET Data Service
+
+### Prerequisites
+
+- **.NET 10 SDK**
+- **A VistA RPC server** (e.g., [care-platform-core-mock-vista](https://dev.azure.com/engicare/Care%20Platform%20CORE/_git/care-platform-core-mock-vista) on port 9200)
+
+### 1. Build
+
+```bash
+cd dotnet
+dotnet build care-platform-data-vista.slnx
+```
+
+### 2. Configure site connections
+
+Edit `dotnet/CarePlatform.Data.CPRS/resources/xml/LocalVEHUSites.xml`:
+
+```xml
+<VhaSite name="Mock VistA" ID="128" moniker="TST">
+  <DataSource modality="HIS" type="VISTA" protocol="VISTA"
+              source="127.0.0.1" status="active" port="9200" />
+</VhaSite>
+```
+
+### 3. Launch the data service
+
+```bash
+cd dotnet/CarePlatform.Data.CPRS
+dotnet run
+```
+
+The API is at `https://localhost:5001` (HTTP: `http://localhost:5000`).
+
+### 4. Launch the example web frontend
+
+In a second terminal:
+
+```bash
+cd dotnet/CarePlatform.Web.Example
+dotnet run
+```
+
+Open `http://localhost:5253` in your browser. Pick a site, enter access/verify codes, and the dashboard will show your VistA connection info (user name, DUZ, division, JWT token, session status).
+
+### 5. Verify via curl
+
+```bash
+# Get available sites
+curl -k https://localhost:5001/api/connection/sites
+
+# Login (returns JWT)
+TOKEN=$(curl -sk "https://localhost:5001/api/connectbysite?SiteId=128&AccessCode=cprs&VerifyCode=cprs1234")
+
+# Use the JWT
+curl -k -H "Authorization: Bearer $TOKEN" https://localhost:5001/api/user/info
+```
+
+---
+
+## Quick Start — Python Data Service
+
+### Prerequisites
 
 - **Python 3.11+** (3.12 recommended)
-- **A VistA RPC server** listening on XWB broker protocol (e.g., [care-platform-core-mock-vista](https://engicare.visualstudio.com/Care%20Platform%20CORE/_git/care-platform-core-mock-vista) for local development)
-
-## Quick Start
+- **A VistA RPC server** on XWB broker protocol (port 9200 for dev)
 
 ### 1. Install dependencies
 
 ```bash
+cd python
+
 # Create a virtual environment (recommended)
 python -m venv .venv
 
@@ -31,7 +117,7 @@ pip install -e ".[dev]"
 
 ### 2. Configure site connections
 
-Edit `resources/xml/LocalVEHUSites.xml` to point at your VistA instance:
+Edit `python/resources/xml/LocalVEHUSites.xml` to point at your VistA instance:
 
 ```xml
 <VhaSite name="VistA RPC Server (Test)" ID="128" moniker="TST">
@@ -46,7 +132,7 @@ Edit `resources/xml/LocalVEHUSites.xml` to point at your VistA instance:
 
 ### 3. Configure application settings
 
-`appsettings.json` controls logging, session management, and JWT signing:
+`python/appsettings.json` controls logging, session management, and JWT signing:
 
 ```json
 {
@@ -127,7 +213,7 @@ Expected output:
 | Reports | `GET /api/report/lists` | Available report types |
 | Alerts | `GET /api/alert/list` | User notifications |
 
-See [AI_CONTEXT.md](AI_CONTEXT.md) for comprehensive endpoint documentation, or visit `/docs` for the auto-generated OpenAPI spec.
+See [python/AI_CONTEXT.md](python/AI_CONTEXT.md) for comprehensive endpoint documentation, or visit `/docs` for the auto-generated OpenAPI spec.
 
 ### Response Formats
 
@@ -141,6 +227,8 @@ See [AI_CONTEXT.md](AI_CONTEXT.md) for comprehensive endpoint documentation, or 
 The `examples/` directory contains ready-to-run Python scripts demonstrating common workflows:
 
 ```bash
+cd python
+
 # Login and get user info
 python examples/login.py
 
@@ -151,7 +239,7 @@ python examples/read_notes.py
 python examples/patient_summary.py
 ```
 
-See the [examples/](examples/) directory for details. Each script is self-contained and only requires the `requests` library (`pip install requests`).
+See the [python/examples/](python/examples/) directory for details. Each script is self-contained and only requires the `requests` library (`pip install requests`).
 
 ---
 
@@ -159,15 +247,16 @@ See the [examples/](examples/) directory for details. Each script is self-contai
 
 Two files are provided for AI/LLM tool integration:
 
-- **[AI_CONTEXT.md](AI_CONTEXT.md)** — Human-readable context guide with auth flow, workflows, domain glossary, and model schemas. Suitable for LLM system prompts or RAG retrieval.
-- **[ai_tools.json](ai_tools.json)** — Structured JSON tool definitions (50+ tools) for OpenAI function calling, LangChain, MCP, or similar frameworks.
+- **[python/AI_CONTEXT.md](python/AI_CONTEXT.md)** — Human-readable context guide with auth flow, workflows, domain glossary, and model schemas. Suitable for LLM system prompts or RAG retrieval.
+- **[python/ai_tools.json](python/ai_tools.json)** — Structured JSON tool definitions (50+ tools) for OpenAI function calling, LangChain, MCP, or similar frameworks.
 
 ---
 
-## Project Structure
+## Python Project Structure
 
 ```
-app/
+python/
+├── app/
 ├── main.py                 # FastAPI application entry point
 ├── config.py               # Site configuration loader
 ├── dependencies.py         # Auth dependency (JWT verification)
@@ -201,6 +290,7 @@ app/
 ## Running Tests
 
 ```bash
+cd python
 pytest
 ```
 
@@ -209,6 +299,7 @@ pytest
 ## Development
 
 ```bash
+cd python
 # Install with dev dependencies
 pip install -e ".[dev]"
 

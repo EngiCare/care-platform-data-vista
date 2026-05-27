@@ -1,0 +1,52 @@
+﻿@* Copyright (c) 2026 Engineered Care, Inc. Licensed under the MIT License. *@
+@{
+    ViewData["Title"] = "Login";
+    var sites = ViewBag.Sites as List<CarePlatform.Web.Example.Controllers.HomeController.SiteInfo> ?? [];
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Connect to VistA</h5>
+            </div>
+            <div class="card-body">
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger">@ViewBag.Error</div>
+                }
+
+                <form method="post" asp-action="Login">
+                    <div class="mb-3">
+                        <label class="form-label">Site</label>
+                        <select name="siteId" class="form-select" required>
+                            @if (sites.Count == 0)
+                            {
+                                <option value="128">128 — Default (localhost:9200)</option>
+                            }
+                            @foreach (var site in sites)
+                            {
+                                <option value="@site.SiteId">@site.SiteId — @site.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Access Code</label>
+                        <input type="password" name="accessCode" class="form-control"
+                               placeholder="Access code" required autocomplete="off" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Verify Code</label>
+                        <input type="password" name="verifyCode" class="form-control"
+                               placeholder="Verify code" required autocomplete="off" />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Connect</button>
+                </form>
+            </div>
+            <div class="card-footer text-muted small">
+                This example connects to the CarePlatform.Data.CPRS data service.
+            </div>
+        </div>
+    </div>
+</div>
