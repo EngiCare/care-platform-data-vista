@@ -1,0 +1,81 @@
+@* Copyright (c) 2026 Engineered Care, Inc. Licensed under the MIT License. *@
+@{
+    ViewData["Title"] = "Dashboard";
+    var user = ViewBag.UserInfo as CarePlatform.Web.Example.Controllers.HomeController.UserInfo;
+}
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="cp-widget">
+            <div class="cp-widget-header">
+                <span><i class="bi bi-person-badge me-1"></i> User Information</span>
+                <form method="post" asp-action="Disconnect" class="mb-0">
+                    <button type="submit" class="btn btn-sm btn-outline-light py-0 px-2" style="font-size: 0.75rem;">
+                        <i class="bi bi-box-arrow-right"></i> Sign Out
+                    </button>
+                </form>
+            </div>
+            <div class="cp-widget-body">
+                @if (user != null)
+                {
+                    <table>
+                        <tbody>
+                            <tr><th style="width:150px">Name</th><td>@user.Name</td></tr>
+                            <tr><th>DUZ</th><td>@user.Duz</td></tr>
+                            <tr><th>Title</th><td>@(string.IsNullOrEmpty(user.Title) ? "—" : user.Title)</td></tr>
+                            <tr><th>Service / Section</th><td>@(string.IsNullOrEmpty(user.ServiceSection) ? "—" : user.ServiceSection)</td></tr>
+                            <tr><th>Division</th><td>@(string.IsNullOrEmpty(user.Division) ? "—" : user.Division)</td></tr>
+                            <tr><th>Language</th><td>@(string.IsNullOrEmpty(user.Language) ? "—" : user.Language)</td></tr>
+                            <tr><th>DTIME</th><td>@(string.IsNullOrEmpty(user.Dtime) ? "—" : user.Dtime)</td></tr>
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">User info not available.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="cp-widget">
+            <div class="cp-widget-header">
+                <span><i class="bi bi-plug me-1"></i> Connection</span>
+            </div>
+            <div class="cp-widget-body">
+                <table>
+                    <tbody>
+                        <tr><th style="width:150px">Status</th><td><span class="badge bg-success">Active</span></td></tr>
+                        <tr><th>Site</th><td>@ViewBag.SiteId</td></tr>
+                        <tr><th>Protocol</th><td>XWB Broker (TCP)</td></tr>
+                        <tr><th>Server</th><td>Mock VistA (localhost:9200)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="cp-widget">
+            <div class="cp-widget-header">
+                <span><i class="bi bi-list-ol me-1"></i> RPC Sequence</span>
+            </div>
+            <div class="cp-widget-body">
+                <table>
+                    <tbody>
+                        <tr><td><code>TCPConnect</code></td><td>Establish connection</td></tr>
+                        <tr><td><code>XUS SIGNON SETUP</code></td><td>Get server info</td></tr>
+                        <tr><td><code>XUS AV CODE</code></td><td>Authenticate (cipher-encrypted)</td></tr>
+                        <tr><td><code>XWB CREATE CONTEXT</code></td><td>Set application context</td></tr>
+                        <tr><td><code>XUS GET USER INFO</code></td><td>Retrieve user details</td></tr>
+                        <tr><td><code>#BYE#</code></td><td>Disconnect</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

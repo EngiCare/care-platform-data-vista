@@ -1,0 +1,67 @@
+﻿@* Copyright (c) 2026 Engineered Care, Inc. Licensed under the MIT License. *@
+@{
+    ViewData["Title"] = "Sign in";
+    ViewData["HideChrome"] = true;
+    var sites = ViewBag.Sites as List<CarePlatform.Web.Example.Controllers.HomeController.SiteInfo> ?? [];
+}
+
+<div class="cp-login-container">
+    <div class="cp-login-card">
+        <div class="cp-login-header">
+            <h4><i class="bi bi-hdd-network"></i> VistA Example</h4>
+            <p class="login-subtitle">Care Platform CORE</p>
+        </div>
+        <div class="cp-login-body">
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger py-2" role="alert">@ViewBag.Error</div>
+            }
+
+            <form method="post" asp-action="Login">
+                <div class="mb-3">
+                    <label class="form-label">Site</label>
+                    <select name="siteId" class="form-select" required>
+                        @if (sites.Count == 0)
+                        {
+                            <option value="128">Mock VistA (localhost) (128)</option>
+                        }
+                        @foreach (var site in sites)
+                        {
+                            <option value="@site.SiteId">@site.Name (@site.SiteId)</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Access Code</label>
+                    <input type="password" name="accessCode" class="form-control"
+                           placeholder="Access code" required autocomplete="off" autofocus />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Verify Code</label>
+                    <input type="password" name="verifyCode" class="form-control"
+                           placeholder="Verify code" required autocomplete="off" />
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg" id="btnLogin">
+                        <i class="bi bi-box-arrow-in-right"></i> Sign In
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-center mt-3">
+                <small class="text-muted">Department of Veterans Affairs</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.querySelector('form').addEventListener('submit', function () {
+        var btn = document.getElementById('btnLogin');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Connecting...';
+    });
+</script>
+}
