@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- VEHU set up on a Cache instance on the same machine as mdws. Comepletely isolated testing -->
+<VhaVisnTable xmlns="http://med.va.gov/vistaweb/sitesTable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://med.va.gov/vistaweb/sitesTable VhaSites.xsd">
+<!-- Fake Ann Arbor
+  <VhaVisn name="VISN A" ID="1">
+    <VhaSite name="Ann Arbor VEHU, MI" ID="506" moniker="CPM">
+      <DataSource modality="HIS" type="VISTA" protocol="VISTA" source="127.0.0.1" status="active" port="9200" />
+		</VhaSite>
+	</VhaVisn>
+-->
+  <!-- Bay Pines Test Systems -->
+  <VhaVisn name="VISN B" ID="2">
+    <VhaSite name="CHEY117" ID="795" moniker="CHY">
+      <DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.4.230.74" status="active" port="9795" />
+    </VhaSite>
+    <VhaSite name="SLC22" ID="802" moniker="SLC">
+      <DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.4.230.74" status="active" port="9802" />
+    </VhaSite>
+    <VhaSite name="DAYT50" ID="803" moniker="DTN">
+      <DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.4.230.74" status="active" port="9803" />
+    </VhaSite>
+  </VhaVisn>
+</VhaVisnTable>

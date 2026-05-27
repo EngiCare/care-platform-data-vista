@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Care Platform — Docker Compose Sites -->
+<VhaVisnTable xmlns="http://med.va.gov/vistaweb/sitesTable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://med.va.gov/vistaweb/sitesTable VhaSites.xsd">
+  <VhaVisn name="Care Platform" ID="1">
+    <!-- Full microservice stack: Python RPC Broker → Service Layer → PostgreSQL -->
+    <VhaSite name="Care Platform (Microservices)" ID="127" moniker="CPM">
+      <DataSource modality="HIS" type="VISTA" protocol="VISTA" source="rpc-broker" status="active" port="9430" />
+    </VhaSite>
+    <!-- .NET RPC Server with in-memory test data (standalone testing) -->
+    <VhaSite name="VistA RPC Server (Test)" ID="128" moniker="TST">
+      <DataSource modality="HIS" type="VISTA" protocol="VISTA" source="rpc-server" status="active" port="9200" />
+    </VhaSite>
+  </VhaVisn>
+</VhaVisnTable>

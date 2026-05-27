@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v5 rel. 4 U (http://www.xmlspy.com) by Joe Gillon (Veterans Health Administration) -->
+<VhaVisnTable xmlns="http://med.va.gov/vistaweb/sitesTable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://med.va.gov/vistaweb/sitesTable VhaSites.xsd">
+  <VhaVisn name="MockVista" ID="998">
+    <VhaSite name="MockVista" ID="700" moniker="ANN" description="Connect to Mock data like MDO-Test">
+      <DataSource modality="HIS" protocol="MOCK" source="VISTA.ANN-ARBOR.MED.VA.GOV" status="active"/>
+    </VhaSite>
+  </VhaVisn>
+  <VhaVisn name="XVista" ID="999" description="Connect to Ann Arbor production and save results like MDO-X">
+    <VhaSite name="XVista" ID="506" moniker="ANN">
+      <DataSource modality="HIS" protocol="XVISTA" source="VISTA.ANN-ARBOR.MED.VA.GOV" port="19206" status="active"/>
+    </VhaSite>
+  </VhaVisn>
+  <VhaVisn name="MockCPM" ID="1128" description="Connect to local CPM mock">
+    <VhaSite name="MockCPM" ID="1128" moniker="CPM">
+      <DataSource modality="HIS" protocol="MOCK" source="local.sqlite" port="9200" status="active"/>
+    </VhaSite>
+  </VhaVisn>
+  <VhaVisn name="FHIE, DoD" ID="200">
+    <VhaSite name="DoD" ID="200" moniker="DOD">
+      <DataSource protocol="FHIE" modality="HIS" source="FHIE.MED.VA.GOV" status="active" port="9200" permission="DVBA CAPRI GUI"/>
+      <DataSource modality="IEA" protocol="VIX" port="80" source="VHAFHIEIMAGE1.MED.VA.GOV" status="active" />
+    </VhaSite>
+  </VhaVisn>
+  <VhaVisn name="MPI" ID="500">
+    <VhaSite name="MPI" ID="500" moniker="MPI">
+      <DataSource protocol="HL7" modality="MPI" source="MPI-AUSTIN.MED.VA.GOV" status="active" port="5500" />
+      <!--<DataSource protocol="HL7" modality="MPI" source="10.4.229.50" status="active" port="15500" />-->
+    </VhaSite>
+  </VhaVisn>
+  <VhaVisn name="Central Office" ID="100">
+    <VhaSite name="Claims System" ID="100" moniker="CLM">
+      <DataSource protocol="VISTA" modality="HIS" source="FORUM.VA.GOV" status="active" port="9400" />
+    </VhaSite>
+  </VhaVisn>
+</VhaVisnTable>

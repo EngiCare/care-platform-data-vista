@@ -17,3 +17,9 @@ env/
 *.swp
 *.swo
 *~
+
+# .NET
+bin/
+obj/
+*.user
+*.suo

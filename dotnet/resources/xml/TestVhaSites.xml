@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v5 rel. 4 U (http://www.xmlspy.com) by Joe Gillon (Veterans Health Administration) -->
+<VhaVisnTable xmlns="http://med.va.gov/vistaweb/sitesTable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://med.va.gov/vistaweb/sitesTable VhaSites.xsd">
+	<VhaVisn name="VISN A" ID="1">
+		<VhaSite name="Abilene" ID="998" moniker="CAA">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9010" />
+		</VhaSite>
+		<VhaSite name="Central City" ID="995" moniker="CCC">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9012"/>
+		</VhaSite>
+		<VhaSite name="Champaign" ID="996" moniker="CFF">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9015"/>
+		</VhaSite>
+		<VhaSite name="South Bend" ID="990" moniker="CKK">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9020"/>
+		</VhaSite>
+	</VhaVisn>
+	<VhaVisn name="VISN B" ID="2">
+		<VhaSite name="Boca Raton" ID="988" moniker="CEE">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9014"/>
+		</VhaSite>
+		<VhaSite name="Charleston" ID="997" moniker="CBB">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9011"/>
+		</VhaSite>
+		<VhaSite name="Jamestown" ID="991" moniker="CJJ">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9019"/>
+		</VhaSite>
+		<VhaSite name="Lynchburg" ID="999" moniker="CLL">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9021"/>
+		</VhaSite>
+	</VhaVisn>
+	<VhaVisn name="VISN B" ID="3">
+		<VhaSite name="Lubbock" ID="994" moniker="CDD">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9013"/>
+		</VhaSite>
+		<VhaSite name="Yuma" ID="993" moniker="CGG">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9016"/>
+		</VhaSite>
+		<VhaSite name="Laredo" ID="992" moniker="CHH">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9017"/>
+		</VhaSite>
+		<VhaSite name="Park City" ID="989" moniker="CII">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9018"/>
+		</VhaSite>
+		<VhaSite name="Aspen" ID="987" moniker="CMM">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9022"/>
+		</VhaSite>
+	</VhaVisn>
+</VhaVisnTable>

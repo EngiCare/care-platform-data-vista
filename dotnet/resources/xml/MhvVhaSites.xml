@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v5 rel. 4 U (http://www.xmlspy.com) by Joe Gillon (Veterans Health Administration) -->
+<VhaVisnTable xmlns="http://med.va.gov/vistaweb/sitesTable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://med.va.gov/vistaweb/sitesTable VhaSites.xsd">
+	<VhaVisn name="IntegrationB" ID="1">
+		<VhaSite name="Salt Lake City" ID="991" moniker="SLC4">
+			<DataSource modality="HIS" protocol="VISTA" source="10.4.229.50" status="active" port="9586"/>
+		</VhaSite>
+		<VhaSite name="Dayton, OH" ID="994" moniker="DAYT3">
+			<DataSource modality="HIS" protocol="VISTA" source="10.4.230.251" status="active" port="9474"/>
+		</VhaSite>
+	</VhaVisn>
+	<VhaVisn name="SysTest" ID="2">
+		<VhaSite name="SLC10" ID="979" moniker="SLC10">
+			<DataSource modality="HIS" protocol="VISTA" source="10.4.230.251" status="active" port="9693"/>
+		</VhaSite>
+		<VhaSite name="DAYT29" ID="989" moniker="DAYT29">
+			<DataSource modality="HIS" protocol="VISTA" source="10.4.230.251" status="active" port="9611"/>
+		</VhaSite>
+	</VhaVisn>
+	<VhaVisn name="PerfTest" ID="3">
+		<VhaSite name="Salem" ID="658" moniker="MHVSALEM">
+			<DataSource modality="HIS" protocol="VISTA" source="10.2.29.142" status="active" port="9705"/>
+		</VhaSite>
+	</VhaVisn>
+	<VhaVisn name="Psdev" ID="4">
+		<VhaSite name="Cheyenne" ID="990" moniker="CHEY44">
+			<DataSource modality="HIS" protocol="VISTA" source="10.4.230.251" status="active" port="9604"/>
+		</VhaSite>
+		<VhaSite name="Cheyenne" ID="996" moniker="CHEY25">
+			<DataSource modality="HIS" protocol="VISTA" source="10.4.229.50" status="active" port="9565"/>
+		</VhaSite>
+	</VhaVisn>
+</VhaVisnTable>

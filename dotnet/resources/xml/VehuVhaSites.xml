@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v5 rel. 4 U (http://www.xmlspy.com) by Joe Gillon (Veterans Health Administration) -->
+<VhaVisnTable xmlns="http://med.va.gov/vistaweb/sitesTable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://med.va.gov/vistaweb/sitesTable VhaSites.xsd">
+	<VhaVisn name="VISN A" ID="1">
+		<VhaSite name="Abilene" ID="500" moniker="CAA">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9010" />
+		</VhaSite>
+		<VhaSite name="Charleston" ID="997" moniker="CBB">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9011"/>
+		</VhaSite>
+		<VhaSite name="Central City" ID="995" moniker="CCC">
+			<DataSource modality="HIS" type="VISTA" protocol="VISTA" source="10.1.19.122" status="active" port="9012"/>
+		</VhaSite>
+	</VhaVisn>
+</VhaVisnTable>
