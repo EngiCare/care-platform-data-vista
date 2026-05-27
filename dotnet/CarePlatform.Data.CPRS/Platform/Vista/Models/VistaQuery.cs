@@ -1,4 +1,5 @@
-﻿using System;
+// Copyright (c) 2026 Engineered Care, Inc. Licensed under the MIT License.
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;

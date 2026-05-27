@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Engineered Care, Inc. Licensed under the MIT License.
 using System.Text;
 
 namespace CarePlatform.Models.Reminders;

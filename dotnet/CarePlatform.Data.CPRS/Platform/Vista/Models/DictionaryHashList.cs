@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Engineered Care, Inc. Licensed under the MIT License.
 // Inlined from CarePlatform.Data.VA NuGet package.
 // DictionaryHashList is an ordered list of key-value pairs used to build
 // VistA RPC parameters.  It lives in CarePlatform.Data.VistA so all existing

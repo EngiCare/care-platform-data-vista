@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Engineered Care, Inc. Licensed under the MIT License.
 using System.Collections.Generic;
 
 namespace CarePlatform.Security.VA.STSv2.Models

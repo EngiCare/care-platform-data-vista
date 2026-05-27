@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Engineered Care, Inc. Licensed under the MIT License.
 // Inlined from CarePlatform.Data NuGet package.
 // These minimal types replace the external dependency while keeping the same
 // namespace (CarePlatform.Data) so existing code resolves them automatically.

@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Engineered Care, Inc. Licensed under the MIT License.
 using CarePlatform.Security.VA.STSv2.Configuration;
 using CarePlatform.Security.VA.STSv2.Services;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
